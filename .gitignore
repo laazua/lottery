@@ -1,0 +1,25 @@
+# Android 构建产物
+*.apk
+*.aab
+
+# 签名信息
+*.keystore
+*.jks
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Go 覆盖率
+coverage.out
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+lottery
+lottery-debug.apk
+lottery-debug.apk.idsig
+
+coverage.out
