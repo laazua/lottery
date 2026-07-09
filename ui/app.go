@@ -50,7 +50,7 @@ func NewApp(lotterySvc *service.LotteryService, statsSvc *service.StatsService, 
 	)
 	return &App{
 		Window: w,
-		Route:  screen.Route{Current: screen.ScreenHistory},
+		Route:  screen.Route{Current: screen.ScreenRandom},
 		Theme:  theme.NewTheme(),
 		Services: screen.Services{
 			Lottery:   lotterySvc,
