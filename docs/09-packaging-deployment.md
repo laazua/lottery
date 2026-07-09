@@ -247,10 +247,10 @@ java -jar bundletool.jar build-bundle \
 
 | 变量路径 | 用途 | 默认值 |
 |---------|------|--------|
-| `github.com/user/lottery/internal/config.APIBaseURL` | 数据源 API 基础 URL | `https://www.cwl.gov.cn` |
-| `github.com/user/lottery/internal/config.DataSource` | 数据源类型 | `cwl` |
+| `github.com/user/lottery/internal/config.APIBaseURL` | 数据源 API 基础 URL | `https://webapi.sporttery.cn` |
+| `github.com/user/lottery/internal/config.DataSource` | 数据源类型 | `sporttery` |
 
-> `DataSource` 取值：`cwl`（福彩官网接口）、`mock`（内置模拟数据，无网络时可用）
+> `DataSource` 取值：`sporttery`（体彩官方接口）、`mock`（内置模拟数据，无网络时可用）
 
 ### 6.3 桌面端注入
 
@@ -258,7 +258,7 @@ java -jar bundletool.jar build-bundle \
 # 使用在线数据（需 API 可用）
 go run -ldflags="-X 'github.com/user/lottery/internal/config.APIBaseURL=https://api.example.com'" .
 
-# 使用模拟数据（离线可用）
+# 使用模拟数据（离线可用，UI 调试推荐）
 go run -ldflags="-X 'github.com/user/lottery/internal/config.DataSource=mock'" .
 ```
 
@@ -267,7 +267,7 @@ go run -ldflags="-X 'github.com/user/lottery/internal/config.DataSource=mock'" .
 在项目根目录执行：
 
 ```bash
-# 使用默认 API（福彩官网）
+# 使用默认 API（体彩官网）
 make run
 
 # 使用自定义 API 地址
@@ -472,7 +472,7 @@ adb logcat -s "lottery" --format=tag
 - [ ] 测试已全量通过（`make test`）
 - [ ] 桌面端 UI 验证正常
 - [ ] 真机安装验证 UI 正常
-- [ ] 所有网络请求正常（cwl.gov.cn 可达）
+- [ ] 所有网络请求正常（webapi.sporttery.cn 可达）
 - [ ] 签名密钥可用
 - [ ] 图标已确认（`-icon android/ic_launcher/mipmap-xxxhdpi/ic_launcher.png`）
 - [ ] 隐私政策已更新（如首次发布）

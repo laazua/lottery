@@ -71,12 +71,9 @@ func TestCWLClient_FetchDraws_ServerError(t *testing.T) {
 	defer server.Close()
 
 	c := NewCWLClient(WithBaseURL(server.URL))
-	draws, err := c.FetchDraws(context.Background())
-	if err != nil {
-		t.Fatalf("API失败自动回退到模拟数据应无错误: %v", err)
-	}
-	if len(draws) == 0 {
-		t.Error("回退的模拟数据不应为空")
+	_, err := c.FetchDraws(context.Background())
+	if err == nil {
+		t.Fatal("API 返回 500 时应返回错误，不再回退到模拟数据")
 	}
 }
 
@@ -87,12 +84,9 @@ func TestCWLClient_FetchDraws_RateLimited(t *testing.T) {
 	defer server.Close()
 
 	c := NewCWLClient(WithBaseURL(server.URL))
-	draws, err := c.FetchDraws(context.Background())
-	if err != nil {
-		t.Fatalf("API限流自动回退到模拟数据应无错误: %v", err)
-	}
-	if len(draws) == 0 {
-		t.Error("回退的模拟数据不应为空")
+	_, err := c.FetchDraws(context.Background())
+	if err == nil {
+		t.Fatal("API 返回 429 时应返回错误，不再回退到模拟数据")
 	}
 }
 

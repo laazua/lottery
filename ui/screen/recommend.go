@@ -53,20 +53,20 @@ func RecommendLayout(gtx layout.Context, th *theme.Theme, state *RecommendState,
 // recommendHeader 渲染推荐页标题和生成按钮。
 func recommendHeader(gtx layout.Context, th *theme.Theme, state *RecommendState, svc *Services) layout.Dimensions {
 	return layout.Inset{
-		Top: th.Spacing.Small, Bottom: th.Spacing.XSmall,
-		Left: th.Spacing.Small, Right: th.Spacing.Small,
+		Top: th.Spacing.Medium, Bottom: th.Spacing.Small,
+		Left: th.Spacing.Large, Right: th.Spacing.Large,
 	}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 		return layout.Flex{
 			Axis: layout.Horizontal,
 		}.Layout(gtx,
 			// 标题
 			layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
-				lbl := material.Label(th.Theme, unit.Sp(20), "智能推荐")
+				lbl := material.Label(th.Theme, unit.Sp(18), "智能推荐")
 				lbl.Font.Weight = font.Bold
 				lbl.Color = th.Colors.OnSurface
 				return lbl.Layout(gtx)
 			}),
-			// 生成按钮（使用胶囊形填充按钮）
+			// 生成按钮
 			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 				btn := lotwidget.FilledBtn(th, "生成推荐", &state.GenerateBtn)
 				return btn.Layout(gtx)
@@ -110,19 +110,20 @@ func recommendContent(gtx layout.Context, th *theme.Theme, state *RecommendState
 
 	// ═══ 渲染推荐结果 ═══
 	return layout.Inset{
-		Top: th.Spacing.XSmall,
-		Left: th.Spacing.Small, Right: th.Spacing.Small,
+		Top:   th.Spacing.Small,
+		Left:  th.Spacing.Large,
+		Right: th.Spacing.Large,
 	}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 		return layout.Flex{
 			Axis: layout.Vertical,
 		}.Layout(gtx,
 			// 前区
 			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-				return recommendCard(gtx, th, "🎯 前区推荐", state.Recommendation.FrontNumbers)
+				return recommendCard(gtx, th, "前区推荐", state.Recommendation.FrontNumbers)
 			}),
 			// 后区
 			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-				return recommendCard(gtx, th, "🎯 后区推荐", state.Recommendation.BackNumbers)
+				return recommendCard(gtx, th, "后区推荐", state.Recommendation.BackNumbers)
 			}),
 			// 提示
 			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
@@ -147,7 +148,7 @@ func recommendCard(gtx layout.Context, th *theme.Theme, title string, nums []mod
 		r := gtx.Dp(th.Shape.Medium)
 		defer clip.RRect{
 			Rect: image.Rect(0, 0, gtx.Constraints.Max.X, gtx.Constraints.Max.Y),
-			NE: r, NW: r, SE: r, SW: r,
+			NE:   r, NW: r, SE: r, SW: r,
 		}.Push(gtx.Ops).Pop()
 		paint.Fill(gtx.Ops, th.Colors.Surface)
 
@@ -207,16 +208,18 @@ func recommendBallRow(th *theme.Theme, nums []model.RecommendNumber) []layout.Fl
 }
 
 // recommendStatus 根据推荐理由标签返回 BallStatus。
+// 前区号码使用 BallFront（红色），后区号码使用 BallBack（蓝色）。
+// 由于 recommend.go 不区分前后区，这里根据理由映射。
 func recommendStatus(reason string) lotwidget.BallStatus {
 	switch reason {
-	case "🔥热":
+	case "热号":
 		return lotwidget.BallHot
-	case "🌡️温":
+	case "温号":
 		return lotwidget.BallWarm
-	case "📊遗漏":
+	case "遗漏":
 		return lotwidget.BallMiss
 	default:
-		return lotwidget.BallNormal
+		return lotwidget.BallFront
 	}
 }
 

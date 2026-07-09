@@ -20,6 +20,8 @@
 | 了解 Harness 驾驭工程设计 | docs/07-harnesss.md |
 | 移动端开发环境依赖环境 | docs/08-mobile-dev-deps.md |
 | 执行代码库卫生清理 | docs/.skills/codebase-hygiene/SKILL.md |
+| 了解开奖查询页面布局 | docs/11-history-page-layout.md |
+| 了解开奖查询页面优化记录 | docs/12-history-page-optimization.md |
 
 
 ## 硬性规则

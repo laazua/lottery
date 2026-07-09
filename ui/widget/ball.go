@@ -22,6 +22,8 @@ type BallStatus int
 
 const (
 	BallNormal BallStatus = iota
+	BallFront             // 前区号码（红色 #F46E6A）
+	BallBack              // 后区号码（蓝色 #2665EF）
 	BallHot
 	BallWarm
 	BallCold
@@ -45,7 +47,7 @@ func Ball(gtx layout.Context, th *theme.Theme, number int, status BallStatus, si
 		// 高光（顶部 1/3 处半透明白）
 		highlight := image.Rect(0, 0, diameter, diameter/2)
 		hOps := clip.UniformRRect(highlight, diameter/2).Push(gtx.Ops)
-		paint.Fill(gtx.Ops, color.NRGBA{R: 0xFF, G: 0xFF, B: 0xFF, A: 0x18})
+		paint.Fill(gtx.Ops, color.NRGBA{R: 0xFF, G: 0xFF, B: 0xFF, A: 0x24})
 		hOps.Pop()
 
 		// 号码文字
@@ -60,6 +62,10 @@ func Ball(gtx layout.Context, th *theme.Theme, number int, status BallStatus, si
 // ballColor 根据状态返回对应的颜色。
 func ballColor(th *theme.Theme, status BallStatus) color.NRGBA {
 	switch status {
+	case BallFront:
+		return th.Colors.FrontBall
+	case BallBack:
+		return th.Colors.BackBall
 	case BallHot:
 		return th.Colors.Hot
 	case BallWarm:

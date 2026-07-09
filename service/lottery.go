@@ -37,6 +37,25 @@ func (s *LotteryService) FetchDraws(ctx context.Context, pageSize int) ([]model.
 	return draws, nil
 }
 
+// FetchDrawsPage 分页拉取开奖数据，返回包含总记录数的分页结果。
+func (s *LotteryService) FetchDrawsPage(ctx context.Context, pageNo, pageSize int) (*model.DrawsPage, error) {
+	if pageNo <= 0 {
+		return nil, fmt.Errorf("%w: pageNo 必须大于 0", errors.ErrInvalidParams)
+	}
+	if pageSize <= 0 {
+		return nil, fmt.Errorf("%w: pageSize 必须大于 0", errors.ErrInvalidParams)
+	}
+
+	page, err := s.api.FetchDrawsPage(ctx, pageNo, pageSize)
+	if err != nil {
+		slog.Error("分页拉取开奖数据失败", "pageNo", pageNo, "pageSize", pageSize, "error", err)
+		return nil, fmt.Errorf("分页拉取开奖数据: %w", err)
+	}
+
+	slog.Info("分页拉取开奖数据成功", "count", len(page.Draws), "total", page.Total, "pageNo", pageNo)
+	return page, nil
+}
+
 // FetchDrawByPeriod 按期号查询单期开奖数据。
 func (s *LotteryService) FetchDrawByPeriod(ctx context.Context, period string) (*model.Draw, error) {
 	draw, err := s.api.FetchDrawByPeriod(ctx, period)

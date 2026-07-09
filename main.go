@@ -22,13 +22,13 @@ func main() {
 
 	slog.Info("大乐透助手启动中...")
 
-	// 初始化外部依赖
-	cwlClient := client.NewCWLClient()
+	// 初始化体彩 API 客户端
+	sportClient := client.NewSportteryClient()
 
 	// 组装业务服务（DI）
-	lotterySvc := service.NewLotteryService(cwlClient)
-	statsSvc := service.NewStatsService(cwlClient)
-	recommSvc := service.NewRecommendService(cwlClient)
+	lotterySvc := service.NewLotteryService(sportClient)
+	statsSvc := service.NewStatsService(sportClient)
+	recommSvc := service.NewRecommendService(sportClient)
 
 	// 初始化 UI
 	a := ui.NewApp(lotterySvc, statsSvc, recommSvc)

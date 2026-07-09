@@ -14,3 +14,11 @@ type Draw struct {
 	SaleAmount   int64     // 销售额（元）
 	PoolAmount   int64     // 奖池金额（元）
 }
+
+// DrawsPage 表示分页的开奖数据查询结果。
+type DrawsPage struct {
+	Draws    []Draw // 当前页的开奖数据
+	Total    int    // 总记录数
+	Page     int    // 当前页码
+	PageSize int    // 每页数量
+}

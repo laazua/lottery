@@ -21,6 +21,7 @@ var (
 	ErrParseResponse      = NewError("E2DP001", "响应解析失败")
 	ErrUnexpectedField    = NewError("E2DP002", "字段值异常")
 	ErrEmptyResponse      = NewError("E2DP003", "响应数据为空")
+	ErrAPIResponse        = NewError("E2DP004", "API 返回失败状态")
 	ErrServiceUnavailable = NewError("E2SV001", "服务不可用")
 )
 

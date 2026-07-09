@@ -12,6 +12,7 @@ import (
 type MockLotteryAPI struct {
 	FetchDrawsFunc        func(ctx context.Context, opts ...client.Option) ([]model.Draw, error)
 	FetchDrawByPeriodFunc func(ctx context.Context, period string) (*model.Draw, error)
+	FetchDrawsPageFunc    func(ctx context.Context, pageNo, pageSize int) (*model.DrawsPage, error)
 }
 
 // FetchDraws 调用 Mock 函数或返回空结果。
@@ -28,4 +29,12 @@ func (m *MockLotteryAPI) FetchDrawByPeriod(ctx context.Context, period string) (
 		return m.FetchDrawByPeriodFunc(ctx, period)
 	}
 	return nil, nil
+}
+
+// FetchDrawsPage 调用 Mock 函数或返回空结果。
+func (m *MockLotteryAPI) FetchDrawsPage(ctx context.Context, pageNo, pageSize int) (*model.DrawsPage, error) {
+	if m.FetchDrawsPageFunc != nil {
+		return m.FetchDrawsPageFunc(ctx, pageNo, pageSize)
+	}
+	return &model.DrawsPage{Page: pageNo, PageSize: pageSize}, nil
 }

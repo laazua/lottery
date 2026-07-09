@@ -18,6 +18,9 @@ type LotteryAPI interface {
 
 	// FetchDrawByPeriod 按期号查询单期开奖数据。
 	FetchDrawByPeriod(ctx context.Context, period string) (*model.Draw, error)
+
+	// FetchDrawsPage 分页拉取开奖数据，返回包含总记录数的分页结果。
+	FetchDrawsPage(ctx context.Context, pageNo, pageSize int) (*model.DrawsPage, error)
 }
 
 // Option 是客户端选项的函数式接口。
@@ -27,6 +30,7 @@ type Option func(*options)
 type options struct {
 	baseURL    string
 	pageSize   int
+	pageNo     int
 	httpClient HTTPDoer
 	timeout    time.Duration
 }

@@ -2,7 +2,9 @@ package screen
 
 import (
 	"context"
+	"fmt"
 	"image"
+	"image/color"
 	"log/slog"
 
 	"gioui.org/font"
@@ -46,6 +48,11 @@ type StatsState struct {
 // StatsLayout 渲染冷热统计页面。
 func StatsLayout(gtx layout.Context, th *theme.Theme, state *StatsState, svc *Services, drawsCache *[]model.Draw) layout.Dimensions {
 	// ═══ ① 事件检测 ═══
+	// 修复 gioui layout.List 零值默认 Horizontal 导致列表不可见的问题。
+	if state.List.Axis != layout.Vertical {
+		state.List.Axis = layout.Vertical
+	}
+
 	for i := range periodOptions {
 		if state.periodBtns[i].Clicked(gtx) {
 			state.PeriodRange = periodOptions[i].Value
@@ -77,8 +84,8 @@ func StatsLayout(gtx layout.Context, th *theme.Theme, state *StatsState, svc *Se
 // statsHeader 渲染统计页标题和期数选择器。
 func statsHeader(gtx layout.Context, th *theme.Theme, state *StatsState) layout.Dimensions {
 	return layout.Inset{
-		Top: th.Spacing.XSmall, Bottom: th.Spacing.XSmall,
-		Left: th.Spacing.Small, Right: th.Spacing.Small,
+		Top: th.Spacing.Medium, Bottom: th.Spacing.Small,
+		Left: th.Spacing.Large, Right: th.Spacing.Large,
 	}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 		return layout.Flex{
 			Axis: layout.Vertical,
@@ -124,8 +131,27 @@ func statsHeader(gtx layout.Context, th *theme.Theme, state *StatsState) layout.
 	})
 }
 
-// statsContent 渲染统计内容或加载/空状态。
+// statsContent 渲染统计内容。
 func statsContent(gtx layout.Context, th *theme.Theme, state *StatsState) layout.Dimensions {
+	if state.Error != nil && state.Stats == nil {
+		return layout.Center.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+			return layout.Flex{
+				Axis: layout.Vertical,
+			}.Layout(gtx,
+				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+					lbl := material.Label(th.Theme, unit.Sp(16), "统计数据加载失败")
+					lbl.Color = th.Colors.Error
+					return lbl.Layout(gtx)
+				}),
+				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+					lbl := material.Label(th.Theme, unit.Sp(12), "请检查网络后点击期数按钮重试")
+					lbl.Color = th.Colors.Disabled
+					return lbl.Layout(gtx)
+				}),
+			)
+		})
+	}
+
 	if state.Loading && state.Stats == nil {
 		return lotwidget.LoadingSkeleton(gtx, th)
 	}
@@ -149,17 +175,17 @@ func statsContent(gtx layout.Context, th *theme.Theme, state *StatsState) layout
 	})
 }
 
-// numberSection 渲染一个分区（热/温/冷）的号码行。
+// numberSection 渲染一个分区，使用水平柱状图展示号码热度。
 func numberSection(gtx layout.Context, th *theme.Theme, title string, hot, warm, cold []model.NumberFrequency) layout.Dimensions {
 	return layout.Inset{
-		Top: th.Spacing.XSmall, Bottom: th.Spacing.XSmall,
-		Left: th.Spacing.Small, Right: th.Spacing.Small,
+		Top: th.Spacing.Small, Bottom: th.Spacing.Small,
+		Left: th.Spacing.Large, Right: th.Spacing.Large,
 	}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 		// 卡片背景
 		r := gtx.Dp(th.Shape.Medium)
 		defer clip.RRect{
 			Rect: image.Rect(0, 0, gtx.Constraints.Max.X, gtx.Constraints.Max.Y),
-			NE: r, NW: r, SE: r, SW: r,
+			NE:   r, NW: r, SE: r, SW: r,
 		}.Push(gtx.Ops).Pop()
 		paint.Fill(gtx.Ops, th.Colors.Surface)
 
@@ -174,53 +200,63 @@ func numberSection(gtx layout.Context, th *theme.Theme, title string, hot, warm,
 					lbl.Color = th.Colors.OnSurface
 					return lbl.Layout(gtx)
 				}),
-				// 热号行
+				// 柱状图：热号
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-					return freqRow(gtx, th, "🔥热", hot, lotwidget.BallHot)
+					return statChartRow(gtx, th, "热号", hot, th.Colors.ChartOrange)
 				}),
-				// 温号行
+				// 柱状图：温号
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-					return freqRow(gtx, th, "🌡️温", warm, lotwidget.BallWarm)
+					return statChartRow(gtx, th, "温号", warm, th.Colors.ChartGreen)
 				}),
-				// 冷号行
+				// 柱状图：冷号
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-					return freqRow(gtx, th, "❄️冷", cold, lotwidget.BallCold)
+					return statChartRow(gtx, th, "冷号", cold, th.Colors.ChartBlue)
 				}),
 			)
 		})
 	})
 }
 
-// freqRow 渲染一行冷热标签+号码球。
-func freqRow(gtx layout.Context, th *theme.Theme, label string, freqs []model.NumberFrequency, status lotwidget.BallStatus) layout.Dimensions {
+// statChartRow 渲染一栏（含标签 + 水平柱状图）。
+func statChartRow(gtx layout.Context, th *theme.Theme, label string, freqs []model.NumberFrequency, barColor color.NRGBA) layout.Dimensions {
 	return layout.Inset{
 		Top: th.Spacing.XSmall,
 	}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+		// 找到本组最大频次
+		maxCount := 1
+		for _, f := range freqs {
+			if f.Count > maxCount {
+				maxCount = f.Count
+			}
+		}
+
 		return layout.Flex{
-			Axis: layout.Horizontal,
+			Axis: layout.Vertical,
 		}.Layout(gtx,
-			// 标签
+			// 标签行
 			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-				return layout.Inset{
-					Right: th.Spacing.Small,
-				}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-					lbl := material.Label(th.Theme, unit.Sp(12), label)
-					lbl.Font.Weight = font.Medium
-					return lbl.Layout(gtx)
-				})
+				lbl := material.Label(th.Theme, unit.Sp(12), label)
+				lbl.Font.Weight = font.Medium
+				lbl.Color = th.Colors.OnSurface
+				return lbl.Layout(gtx)
 			}),
-			// 号码球
-			layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
-				var balls []layout.FlexChild
-				for _, f := range freqs {
-					f := f
-					balls = append(balls, layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-						return lotwidget.Ball(gtx, th, f.Number, status, th.BallSizes.Small)
-					}))
+			// 柱状图（最多显示 8 个）
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+				limit := 8
+				if len(freqs) < limit {
+					limit = len(freqs)
 				}
-				return layout.Flex{
-					Axis: layout.Horizontal,
-				}.Layout(gtx, balls...)
+				items := make([]lotwidget.BarItem, 0, limit)
+				for _, f := range freqs[:limit] {
+					items = append(items, lotwidget.BarItem{
+						Label:    fmt.Sprintf("%02d", f.Number),
+						Freq:     f.Count,
+						MaxFreq:  maxCount,
+						BarColor: barColor,
+						FreqText: fmt.Sprintf("%d次", f.Count),
+					})
+				}
+				return lotwidget.HorizontalBars(gtx, th, items)
 			}),
 		)
 	})

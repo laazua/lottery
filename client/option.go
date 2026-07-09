@@ -1,3 +1,4 @@
+// Package client 提供外部数据源访问抽象层，定义 LotteryAPI 接口和选项模式。
 package client
 
 import (
@@ -20,6 +21,15 @@ func WithPageSize(n int) Option {
 	return func(o *options) {
 		if n > 0 {
 			o.pageSize = n
+		}
+	}
+}
+
+// WithPageNo 设置请求的页码（从 1 开始）。
+func WithPageNo(pageNo int) Option {
+	return func(o *options) {
+		if pageNo > 0 {
+			o.pageNo = pageNo
 		}
 	}
 }
@@ -49,6 +59,7 @@ func newOptions() *options {
 	return &options{
 		baseURL:    config.APIBaseURL,
 		pageSize:   20,
+		pageNo:     1,
 		httpClient: httpClient,
 		timeout:    10 * time.Second,
 	}

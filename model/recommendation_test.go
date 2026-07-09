@@ -7,29 +7,29 @@ import (
 func TestRecommendNumber_Fields(t *testing.T) {
 	rn := RecommendNumber{
 		Number: 5,
-		Reason: "🔥热",
+		Reason: "热号",
 	}
 
 	if rn.Number != 5 {
 		t.Errorf("expected number 5, got %d", rn.Number)
 	}
-	if rn.Reason != "🔥热" {
-		t.Errorf("expected reason 🔥热, got %s", rn.Reason)
+	if rn.Reason != "热号" {
+		t.Errorf("expected reason 热号, got %s", rn.Reason)
 	}
 }
 
 func TestRecommendation_Fields(t *testing.T) {
 	rec := Recommendation{
 		FrontNumbers: []RecommendNumber{
-			{Number: 1, Reason: "🔥热"},
-			{Number: 2, Reason: "🔥热"},
-			{Number: 3, Reason: "🌡️温"},
-			{Number: 4, Reason: "🌡️温"},
-			{Number: 5, Reason: "📊遗漏"},
+			{Number: 1, Reason: "热号"},
+			{Number: 2, Reason: "热号"},
+			{Number: 3, Reason: "温号"},
+			{Number: 4, Reason: "温号"},
+			{Number: 5, Reason: "遗漏"},
 		},
 		BackNumbers: []RecommendNumber{
-			{Number: 6, Reason: "🔥热"},
-			{Number: 7, Reason: "📊遗漏"},
+			{Number: 6, Reason: "热号"},
+			{Number: 7, Reason: "遗漏"},
 		},
 	}
 

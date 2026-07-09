@@ -10,6 +10,7 @@ const (
 	ScreenHistory ScreenID = iota
 	ScreenStats
 	ScreenRecommend
+	ScreenRandom
 )
 
 // Route 维护导航状态。

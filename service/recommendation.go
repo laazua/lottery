@@ -39,7 +39,7 @@ func (s *RecommendService) GenerateRecommendation(ctx context.Context, stats *mo
 		selected[p.Number] = true
 		rec.FrontNumbers = append(rec.FrontNumbers, model.RecommendNumber{
 			Number: p.Number,
-			Reason: "🔥热",
+			Reason: "热号",
 		})
 	}
 
@@ -48,7 +48,7 @@ func (s *RecommendService) GenerateRecommendation(ctx context.Context, stats *mo
 		selected[p.Number] = true
 		rec.FrontNumbers = append(rec.FrontNumbers, model.RecommendNumber{
 			Number: p.Number,
-			Reason: "🌡️温",
+			Reason: "温号",
 		})
 	}
 
@@ -57,7 +57,7 @@ func (s *RecommendService) GenerateRecommendation(ctx context.Context, stats *mo
 		selected[p.Number] = true
 		rec.FrontNumbers = append(rec.FrontNumbers, model.RecommendNumber{
 			Number: p.Number,
-			Reason: "📊遗漏",
+			Reason: "遗漏",
 		})
 	}
 
@@ -67,7 +67,7 @@ func (s *RecommendService) GenerateRecommendation(ctx context.Context, stats *mo
 		selected[p.Number] = true
 		rec.BackNumbers = append(rec.BackNumbers, model.RecommendNumber{
 			Number: p.Number,
-			Reason: "🔥热",
+			Reason: "热号",
 		})
 	}
 
@@ -75,7 +75,7 @@ func (s *RecommendService) GenerateRecommendation(ctx context.Context, stats *mo
 	for _, p := range backColdPicks {
 		rec.BackNumbers = append(rec.BackNumbers, model.RecommendNumber{
 			Number: p.Number,
-			Reason: "📊遗漏",
+			Reason: "遗漏",
 		})
 	}
 

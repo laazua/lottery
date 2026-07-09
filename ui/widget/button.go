@@ -10,16 +10,16 @@ import (
 )
 
 // FilledBtn 渲染主色填充的胶囊形按钮。
-// 适用于"刷新""生成推荐"等主要操作。
 func FilledBtn(th *theme.Theme, label string, btn *widget.Clickable) material.ButtonStyle {
 	style := material.Button(th.Theme, btn, label)
 	style.Background = th.Colors.Primary
 	style.Color = th.Colors.OnPrimary
-	style.CornerRadius = unit.Dp(20)
+	style.CornerRadius = unit.Dp(16)
 	style.Inset = layout.Inset{
-		Top: th.Spacing.XSmall, Bottom: th.Spacing.XSmall,
-		Left: th.Spacing.Small, Right: th.Spacing.Small,
+		Top: unit.Dp(6), Bottom: unit.Dp(6),
+		Left: unit.Dp(14), Right: unit.Dp(14),
 	}
+	style.TextSize = unit.Sp(13)
 	return style
 }
 
