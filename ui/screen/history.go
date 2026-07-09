@@ -99,6 +99,20 @@ func HistoryLayout(gtx layout.Context, th *theme.Theme, state *HistoryState, svc
 	)
 }
 
+// formatAmount 将金额（元）格式化为人类可读的字符串。
+func formatAmount(amount int64) string {
+	switch {
+	case amount >= 1_0000_0000: // >= 1亿
+		v := float64(amount) / 1_0000_0000.0
+		return fmt.Sprintf("%.1f亿", v)
+	case amount >= 1_0000: // >= 1万
+		v := float64(amount) / 1_0000.0
+		return fmt.Sprintf("%.1f万", v)
+	default:
+		return fmt.Sprintf("%d元", amount)
+	}
+}
+
 // totalPages 计算总页数。
 func totalPages(state *HistoryState) int {
 	if state.Total <= 0 {
@@ -107,21 +121,39 @@ func totalPages(state *HistoryState) int {
 	return (state.Total + historyPageSize - 1) / historyPageSize
 }
 
-// historyHeader 渲染顶部标题栏（含刷新按钮）。
+// historyHeader 渲染顶部标题栏（含当期销售额、奖池总额和刷新按钮）。
 func historyHeader(gtx layout.Context, th *theme.Theme, state *HistoryState) layout.Dimensions {
 	return layout.Inset{
 		Top: th.Spacing.Medium, Bottom: th.Spacing.Small,
 		Left: th.Spacing.Large, Right: th.Spacing.Large,
 	}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 		return layout.Flex{
-			Axis: layout.Horizontal,
+			Axis:      layout.Horizontal,
+			Alignment: layout.Middle,
 		}.Layout(gtx,
-			layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
+			// 左侧标题
+			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 				lbl := material.Label(th.Theme, unit.Sp(18), "开奖查询")
 				lbl.Font.Weight = font.Bold
 				lbl.Color = th.Colors.OnSurface
 				return lbl.Layout(gtx)
 			}),
+			// 中间：当期销售额 + 奖池总额（红色字体）
+			layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
+				if len(state.Draws) == 0 {
+					return layout.Dimensions{}
+				}
+				latest := state.Draws[0]
+				saleStr := formatAmount(latest.SaleAmount)
+				poolStr := formatAmount(latest.PoolAmount)
+				info := fmt.Sprintf("销售额: %s  奖池: %s", saleStr, poolStr)
+				lbl := material.Label(th.Theme, unit.Sp(11), info)
+				lbl.Color = th.Colors.Error
+				lbl.Font.Weight = font.Medium
+				lbl.Alignment = text.Middle
+				return lbl.Layout(gtx)
+			}),
+			// 右侧刷新按钮
 			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 				btn := lotwidget.FilledBtn(th, "刷新", &state.RefreshBtn)
 				return btn.Layout(gtx)
